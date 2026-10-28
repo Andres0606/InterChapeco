@@ -3,8 +3,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
+// CHAVES DE ARMAZENAMENTO
+
 const CHAVE_TOKEN = 'interchapeco_token';
 const CHAVE_USUARIO = 'interchapeco_usuario';
+const CHAVE_FOTO = 'interchapeco_foto';
+const CHAVE_LOCALIZACAO = 'interchapeco_localizacao';
 
 // TOKEN — dado sensível: SecureStore
 
@@ -30,7 +34,9 @@ export async function salvarUsuario(usuario) {
 }
 
 export async function obterUsuario() {
-  const usuarioSalvo = await AsyncStorage.getItem(CHAVE_USUARIO);
+  const usuarioSalvo = await AsyncStorage.getItem(
+    CHAVE_USUARIO
+  );
 
   if (!usuarioSalvo) {
     return null;
@@ -43,7 +49,56 @@ export async function removerUsuario() {
   await AsyncStorage.removeItem(CHAVE_USUARIO);
 }
 
-// LIMPEZA DA SESSÃO
+// FOTO — persistência local
+
+export async function salvarFotoLocal(uri) {
+  await AsyncStorage.setItem(
+    CHAVE_FOTO,
+    uri
+  );
+}
+
+export async function obterFotoLocal() {
+  return AsyncStorage.getItem(
+    CHAVE_FOTO
+  );
+}
+
+export async function removerFotoLocal() {
+  await AsyncStorage.removeItem(
+    CHAVE_FOTO
+  );
+}
+
+// LOCALIZAÇÃO — persistência local
+
+export async function salvarLocalizacao(localizacao) {
+  await AsyncStorage.setItem(
+    CHAVE_LOCALIZACAO,
+    JSON.stringify(localizacao)
+  );
+}
+
+export async function obterLocalizacaoSalva() {
+  const localizacaoSalva =
+    await AsyncStorage.getItem(
+      CHAVE_LOCALIZACAO
+    );
+
+  if (!localizacaoSalva) {
+    return null;
+  }
+
+  return JSON.parse(localizacaoSalva);
+}
+
+export async function removerLocalizacao() {
+  await AsyncStorage.removeItem(
+    CHAVE_LOCALIZACAO
+  );
+}
+
+// SESSÃO — remove apenas dados de autenticação
 
 export async function limparSessao() {
   await removerToken();

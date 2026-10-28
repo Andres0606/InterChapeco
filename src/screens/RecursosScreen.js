@@ -21,6 +21,13 @@ import {
   statusPermissoes,
 } from '../services/nativos';
 
+import {
+  obterFotoLocal,
+  obterLocalizacaoSalva,
+  salvarFotoLocal,
+  salvarLocalizacao,
+} from '../services/storage';
+
 import { cores, espacamentos, tipografia } from '../theme';
 
 function rotuloPermissao(status) {
@@ -56,10 +63,30 @@ export function RecursosScreen() {
     }
   }, []);
 
+  const carregarDadosSalvos = useCallback(async () => {
+    try {
+      const [fotoSalva, localizacaoSalva] = await Promise.all([
+        obterFotoLocal(),
+        obterLocalizacaoSalva(),
+      ]);
+
+      if (fotoSalva) {
+        setFotoUri(fotoSalva);
+      }
+
+      if (localizacaoSalva) {
+        setCoords(localizacaoSalva);
+      }
+    } catch (e) {
+      setErro('Não foi possível carregar os dados salvos.');
+    }
+  }, []);
+
   useEffect(() => {
     configurarNotificacoes();
     atualizarPermissoes();
-  }, [atualizarPermissoes]);
+    carregarDadosSalvos();
+  }, [atualizarPermissoes, carregarDadosSalvos]);
 
   async function executar(chave, acao) {
     setErro('');
@@ -81,6 +108,8 @@ export function RecursosScreen() {
 
       if (resultado) {
         setFotoUri(resultado.uri);
+
+        await salvarFotoLocal(resultado.uri);
       }
     });
   }
@@ -91,6 +120,8 @@ export function RecursosScreen() {
 
       if (resultado) {
         setFotoUri(resultado.uri);
+
+        await salvarFotoLocal(resultado.uri);
       }
     });
   }
@@ -98,7 +129,10 @@ export function RecursosScreen() {
   function obterLocalizacao() {
     executar('gps', async () => {
       const posicao = await obterPosicao();
+
       setCoords(posicao);
+
+      await salvarLocalizacao(posicao);
     });
   }
 
