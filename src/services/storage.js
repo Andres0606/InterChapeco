@@ -98,9 +98,21 @@ export async function removerLocalizacao() {
   );
 }
 
-// SESSÃO — remove apenas dados de autenticação
+// PERFIL LOCAL — foto e localização
+
+export async function limparPerfilLocal() {
+  await Promise.all([
+    removerFotoLocal(),
+    removerLocalizacao(),
+  ]);
+}
+
+// SESSÃO — remove autenticação e dados locais do perfil
 
 export async function limparSessao() {
-  await removerToken();
-  await removerUsuario();
+  await Promise.all([
+    removerToken(),
+    removerUsuario(),
+    limparPerfilLocal(),
+  ]);
 }
