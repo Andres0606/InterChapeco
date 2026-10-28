@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -13,7 +14,9 @@ import { ScreenTemplate } from '../components/templates/ScreenTemplate';
 
 import {
   capturarFoto,
+  configurarNotificacoes,
   escolherImagem,
+  enviarAvisoLocal,
   obterPosicao,
   statusPermissoes,
 } from '../services/nativos';
@@ -54,6 +57,7 @@ export function RecursosScreen() {
   }, []);
 
   useEffect(() => {
+    configurarNotificacoes();
     atualizarPermissoes();
   }, [atualizarPermissoes]);
 
@@ -98,6 +102,20 @@ export function RecursosScreen() {
     });
   }
 
+  function enviarNotificacao() {
+    executar('notificacao', async () => {
+      await enviarAvisoLocal({
+        titulo: 'InterChapecó',
+        corpo: 'Notificação local de teste.',
+      });
+
+      Alert.alert(
+        'Notificação agendada',
+        'A notificação deverá aparecer em alguns segundos.'
+      );
+    });
+  }
+
   return (
     <ScreenTemplate titulo="Recursos nativos">
       {!!erro && (
@@ -125,6 +143,10 @@ export function RecursosScreen() {
 
             <Text style={estilos.texto}>
               Localização: {rotuloPermissao(permissoes.localizacao)}
+            </Text>
+
+            <Text style={estilos.texto}>
+              Notificações: {rotuloPermissao(permissoes.notificacoes)}
             </Text>
           </>
         )}
@@ -194,6 +216,25 @@ export function RecursosScreen() {
             titulo="Obter localização atual"
             aoPressionar={obterLocalizacao}
             carregando={ocupado === 'gps'}
+            desabilitado={!!ocupado}
+          />
+        </View>
+      </View>
+
+      <View style={estilos.cartao}>
+        <Text style={estilos.subtitulo}>
+          Notificação local
+        </Text>
+
+        <Text style={estilos.textoSecundario}>
+          Teste de notificação local do aplicativo.
+        </Text>
+
+        <View style={estilos.espaco}>
+          <Button
+            titulo="Enviar notificação de teste"
+            aoPressionar={enviarNotificacao}
+            carregando={ocupado === 'notificacao'}
             desabilitado={!!ocupado}
           />
         </View>
